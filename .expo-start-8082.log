@@ -1,0 +1,34 @@
+
+> gowez@1.0.0 start
+> expo start --port 8082
+
+env: load .env
+env: export DATABASE_URL EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY EXPO_PUBLIC_GEOAPIFY_API_KEY EXPO_PUBLIC_GOOGLE_API_KEY EXPO_PUBLIC_SERVER_URL MIDTRANS_CLIENT_KEY MIDTRANS_SERVER_KEY
+Starting project at D:\Programming\gowez
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+Using src/app as the root directory for Expo Router.
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+React Compiler enabled
+Starting Metro Bundler
+
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+Waiting on http://localhost:8082
+
+An update for expo is available: 57.0.9 → ~57.0.14
+8 other packages may need updating. Run npx expo install --check for details.
+Logs for your project will appear below.

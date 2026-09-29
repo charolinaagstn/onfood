@@ -1,0 +1,11 @@
+
+> gowez@1.0.0 start
+> expo start --port 8081
+
+env: load .env
+env: export DATABASE_URL EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY EXPO_PUBLIC_GEOAPIFY_API_KEY EXPO_PUBLIC_GOOGLE_API_KEY EXPO_PUBLIC_SERVER_URL MIDTRANS_CLIENT_KEY MIDTRANS_SERVER_KEY
+Starting project at D:\Programming\gowez
+✅ Clerk iOS plugin loaded
+✅ Clerk Android plugin loaded
+› Port 8081 is being used by another process
+› Skipping dev server
