@@ -1,8 +1,8 @@
-import PlaceCard from "@/components/PlaceCard";
-import PlaceMap from "@/components/PlaceMap";
+import RestaurantCard from "@/components/RestaurantCard";
+import RestaurantMap from "@/components/RestaurantMap";
 import SearchBar from "@/components/SearchBar";
-import { calculateDistance, getCurrentUserLocation } from "@/lib/location";
 import { getPlaces } from "@/lib/database/places";
+import { calculateDistance, getCurrentUserLocation } from "@/lib/location";
 import { Place, PlaceFilter } from "@/types/place";
 import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -17,12 +17,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [places, setPlaces] = useState<Place[]>([]);
+  const [restaurants, setRestaurants] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<PlaceFilter>("all");
-  const [selectedPlaceId, setSelectedPlaceId] = useState<number | null>(null);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<number | null>(null);
 
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
@@ -32,29 +32,26 @@ export default function HomeScreen() {
 
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  // 1. Fetch user location
   const fetchLocation = useCallback(async () => {
     try {
       const location = await getCurrentUserLocation();
       setUserLocation(location);
       setLocationError(null);
     } catch (err) {
-      console.warn("Location permission or GPS error:", err);
       setLocationError(
         err instanceof Error
           ? err.message
-          : "Izin lokasi belum diberikan. Menampilkan kuliner sekitar Palembang.",
+          : "Izin lokasi belum diberikan. Menampilkan kuliner sekitar wilayah Palembang.",
       );
     }
   }, []);
 
-  // 2. Fetch places from SQLite database
-  const loadPlacesFromDb = useCallback(async () => {
+  const loadRestaurantsFromDb = useCallback(async () => {
     try {
       const dbPlaces = await getPlaces();
-      setPlaces(dbPlaces);
+      setRestaurants(dbPlaces);
     } catch (error) {
-      console.error("Error loading places from SQLite:", error);
+      console.error("Error loading restaurants from SQLite:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -63,42 +60,40 @@ export default function HomeScreen() {
 
   useEffect(() => {
     fetchLocation();
-    loadPlacesFromDb();
-  }, [fetchLocation, loadPlacesFromDb]);
+    loadRestaurantsFromDb();
+  }, [fetchLocation, loadRestaurantsFromDb]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchLocation();
-    loadPlacesFromDb();
-  }, [fetchLocation, loadPlacesFromDb]);
+    loadRestaurantsFromDb();
+  }, [fetchLocation, loadRestaurantsFromDb]);
 
-  // Compute distances & apply filter / search
-  const processedPlaces = useMemo(() => {
-    let list = places.map((place) => {
+  const processedRestaurants = useMemo(() => {
+    let list = restaurants.map((item) => {
       let distance: number | undefined;
       if (userLocation) {
         distance = calculateDistance(
           userLocation.latitude,
           userLocation.longitude,
-          place.latitude,
-          place.longitude,
+          item.latitude,
+          item.longitude,
         );
       }
-      return { ...place, distance };
+      return { ...item, distance };
     });
 
-    // Search query filter
     if (searchQuery.trim().length > 0) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
         (item) =>
           item.name.toLowerCase().includes(q) ||
           item.category.toLowerCase().includes(q) ||
-          item.address.toLowerCase().includes(q),
+          item.address.toLowerCase().includes(q) ||
+          (item.description && item.description.toLowerCase().includes(q)),
       );
     }
 
-    // Sort/Filter pills
     if (activeFilter === "nearby" && userLocation) {
       list.sort((a, b) => (a.distance ?? 999) - (b.distance ?? 999));
     } else if (activeFilter === "rating") {
@@ -106,11 +101,11 @@ export default function HomeScreen() {
     }
 
     return list;
-  }, [places, userLocation, searchQuery, activeFilter]);
+  }, [restaurants, userLocation, searchQuery, activeFilter]);
 
-  const handleSelectPlace = (place: Place) => {
-    setSelectedPlaceId(place.id);
-    router.push(`/place/${place.id}`);
+  const handleViewDetails = (restaurant: Place) => {
+    setSelectedRestaurantId(restaurant.id);
+    router.push(`/place/${restaurant.id}`);
   };
 
   return (
@@ -123,7 +118,7 @@ export default function HomeScreen() {
               KulinerDekat
             </Text>
             <Text className="text-xs font-JakartaMedium text-neutral-500">
-              Temukan Kuliner Terdekat di Palembang
+              Jelajahi Tempat Kuliner Lokal Terbaik
             </Text>
           </View>
           <View className="h-9 w-9 rounded-full bg-blue-100 items-center justify-center">
@@ -131,8 +126,12 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Search bar */}
-        <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
+        {/* Search Bar */}
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Cari pempek, sate, rendang, soto..."
+        />
 
         {/* Filter Pills */}
         <View className="flex-row gap-2 mt-3">
@@ -198,25 +197,25 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Main Content: Map + List */}
+      {/* Main Content */}
       <View className="flex-1">
-        {/* Map View (top portion) */}
-        <View className="h-56 w-full relative">
-          <PlaceMap
+        {/* Map Discovery Area with Marker Previews */}
+        <View className="h-60 w-full relative border-b border-neutral-200">
+          <RestaurantMap
             userLatitude={userLocation?.latitude ?? null}
             userLongitude={userLocation?.longitude ?? null}
-            places={processedPlaces}
-            selectedPlaceId={selectedPlaceId}
-            onSelectPlace={(place) => handleSelectPlace(place)}
+            restaurants={processedRestaurants}
+            selectedRestaurantId={selectedRestaurantId}
+            onViewDetails={(resto) => handleViewDetails(resto)}
             onUserLocationUpdate={(loc) => setUserLocation(loc)}
           />
         </View>
 
-        {/* Restaurant List Section */}
+        {/* Restaurant Profile Cards List */}
         <View className="flex-1 bg-neutral-50 px-4 pt-3">
           <View className="flex-row items-center justify-between mb-2">
             <Text className="text-base font-JakartaBold text-neutral-800">
-              Rekomendasi Kuliner ({processedPlaces.length})
+              Rekomendasi Tempat Kuliner ({processedRestaurants.length})
             </Text>
             {userLocation && (
               <Text
@@ -237,12 +236,12 @@ export default function HomeScreen() {
             </View>
           ) : (
             <FlatList
-              data={processedPlaces}
+              data={processedRestaurants}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <PlaceCard
-                  place={item}
-                  onPress={() => handleSelectPlace(item)}
+                <RestaurantCard
+                  restaurant={item}
+                  onPress={() => handleViewDetails(item)}
                 />
               )}
               contentContainerStyle={{ paddingBottom: 24 }}

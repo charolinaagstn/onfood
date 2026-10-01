@@ -129,7 +129,28 @@ c = 2 \cdot \text{atan2}\left(\sqrt{a}, \sqrt{1-a}\right), \quad d = R \cdot c \
 
 ---
 
-## 4. Analisis Anggaran & Pertimbangan Bisnis (Budget Considerations)
+## 5. Perintah CLI Seeding & Reset Database Demo Assesor
+
+Aplikasi menyediakan perintah paket Node.js untuk mengisi (*seed*) atau mengosongkan (*reset*) data tempat kuliner demo secara langsung tanpa memerlukan panel admin tambahan:
+
+### 5.1 Perintah Paket (`package.json`)
+1. **Seed Data Demo**:
+   ```bash
+   npm run db:seed
+   ```
+   * *Perilaku*: Membuka file database SQLite `kuliner_dekat.db` dan memasukkan/memperbarui 5 tempat kuliner demo beserta 10 menu item (lengkap dengan URL gambar makanan Indonesia) dan ulasan pengunjung.
+   * *Sifat Idempoten*: Menjalankan perintah ini berulang kali **tidak akan membuat baris duplikat** (menggunakan klausul `INSERT OR REPLACE`).
+
+2. **Reset Database Demo**:
+   ```bash
+   npm run db:reset
+   ```
+   * *Perilaku*: Menghapus seluruh isi tabel `reviews`, `menus`, dan `places`, kemudian melakukan *seeding* ulang dataset demo secara bersih.
+
+---
+
+## 6. Analisis Anggaran & Pertimbangan Bisnis (Budget Considerations)
+
 
 1. **Biaya Infrastruktur Server**: Rp 0,- (Memanfatkan SQLite lokal di perangkat, menghindari server database cloud bulanan).
 2. **Biaya Lisensi Peta**: Penggunaan `react-native-maps` standar dengan ubin peta gratis (*free map tiles* / Google Maps SDK free tier) mengurangi biaya API.
