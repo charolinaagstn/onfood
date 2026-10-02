@@ -21,7 +21,7 @@ try {
   // Native splash already gone (e.g., dev reload) — safe to ignore.
 }
 
-LogBox.ignoreLogs(["Clerk:", "Require cycle:"]);
+LogBox.ignoreLogs(["Require cycle:"]);
 
 /**
  * Reusable splash view shown while loading fonts and initializing database.
